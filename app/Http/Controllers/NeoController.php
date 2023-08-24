@@ -69,7 +69,7 @@ class NeoController extends Controller
             else
             {
                 return redirect()->back()
-                ->with('error_message', 'You have exceeded your rate limit. Try again later.');
+                ->with('error_message', 'Oops!Internal Server Error.Please Try Again Later.');
             }
         }
         catch (Exception $e) 
@@ -98,6 +98,7 @@ class NeoController extends Controller
             
             foreach ($dateAsteroids as $asteroid) {
                 
+                //calculate Speed
                 $speedKph = $asteroid['close_approach_data'][0]['relative_velocity']['kilometers_per_hour'];
                 
                 if ($speedKph > $maxSpeed) {
@@ -106,6 +107,7 @@ class NeoController extends Controller
                     $additionalData['maxSpeed'] = $maxSpeed;
                 }
 
+                // Calculate Distance
                 $distance = $asteroid['close_approach_data'][0]['miss_distance']['kilometers'];
     
                 if ($distance < $closestDistance) {
@@ -113,7 +115,7 @@ class NeoController extends Controller
                     $additionalData['closestDistance'] = $distance;
                 }
 
-                
+                //calculate Average Size                
                 $totalSize += $asteroid['estimated_diameter']['kilometers']['estimated_diameter_max'];
                 $averageSize = $asteroidsCount > 0 ? ($totalSize / $asteroidsCount) : 0;
 
