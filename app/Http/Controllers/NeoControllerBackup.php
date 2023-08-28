@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use Exception;
-use Illuminate\Support\Facades\Validator;
+// use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 class NeoController extends Controller
 {
@@ -32,24 +32,11 @@ class NeoController extends Controller
         try
         {
              //validating difference between 2 dates. It should not be greater than 7 days as Neo API supports only 7 days diffrence.
-
-             $validator = Validator::make($request->all(), [
-                'number_days' => 'required|numeric|min:0|between:0,7',
-            ]
-            ,
-            [
-             'number_days.between'=> 'Difference of 2 dates should be less than 7 days.', // custom message
-            ]);
-            if ($validator->fails()) {
+            if($diff > 7)
+            {
                 return redirect()->back()
-                    ->withErrors($validator)
-                    ->withInput();
+                ->with('error_message', 'Difference between 2 dates should not be greater than 7 days.');
             }
-            // if($diff > 7)
-            // {
-            //     return redirect()->back()
-            //     ->with('error_message', 'Difference between 2 dates should not be greater than 7 days.');
-            // }
 
             //getting all data from Neo API
             $response = Http::get("https://api.nasa.gov/neo/rest/v1/feed", [
@@ -69,16 +56,9 @@ class NeoController extends Controller
                 $neoDatesdata = array_keys($getNeoStatstics);
                 $neoAstroidData = array_values($getNeoStatstics);
 
-                //for getting FastestAsteroidData
-                $getFastestAsteroid = $this->getFastestAsteroid($neoApiData);
+                $getAdditionalAsteroidData = $this->getAdditionalAsteroidData($neoApiData,$asteroidsCount);
 
-                //for getting ClosestAsteroidData
-                $getClosestAsteroid = $this->getClosestAsteroid($neoApiData);
-
-                //for getting Average Size
-                $getAverageSizeOfAsteroid = $this->getAverageSizeOfAsteroid($neoApiData,$asteroidsCount);
-
-                return view('barchart', compact('asteroidsCount','getFastestAsteroid','getClosestAsteroid','getAverageSizeOfAsteroid','neoDatesdata', 'neoAstroidData'));
+                return view('barchart', compact('asteroidsCount','getAdditionalAsteroidData','neoDatesdata', 'neoAstroidData'));
             }
             else
             {
@@ -107,60 +87,17 @@ class NeoController extends Controller
         return $neoDataByItems;
     }
 
-    private function getFastestAsteroid($data)
+    private function getAdditionalAsteroidData($data,$asteroidsCount)
     {
         //creating array to return all calculated data
-        $fastestAsteroidData = [];
+        $additionalData = [];
 
         // Variable inizialization to find the fastest asteroid from the data
         $maxSpeed = 0;
 
-        foreach ($data['near_earth_objects'] as $dateAsteroids) {
-
-            foreach ($dateAsteroids as $asteroid) {
-                //calculate Speed
-
-                $speedKph = $asteroid['close_approach_data'][0]['relative_velocity']['kilometers_per_hour'];
-
-                if ($speedKph > $maxSpeed) {
-                    $maxSpeed = $speedKph;
-                    $fastestAsteroidData['fastest_asteroid_id'] = $asteroid['id'];
-                    $fastestAsteroidData['max_speed'] = $maxSpeed;
-                }
-            }
-        }
-
-        return $fastestAsteroidData;
-    }
-
-    private function getClosestAsteroid($data)
-    {
-         //creating array to return all calculated data
-         $closestAsteroidData = [];
-
          // Variable inizialization to find the closest asteroid from the data
-         $closestAsteroid = null;
-         $closestDistance = PHP_INT_MAX;
-
-         foreach ($data['near_earth_objects'] as $dateAsteroids) {
-
-            foreach ($dateAsteroids as $asteroid) {
-
-                // Calculate Distance
-                $distance = $asteroid['close_approach_data'][0]['miss_distance']['kilometers'];
-
-                if ($distance < $closestDistance) {
-                    $closestAsteroidData['closest_asteroid_id'] = $asteroid['id'];
-                    $closestAsteroidData['closest_distance'] = $distance;
-                }
-            }
-        }
-
-        return $closestAsteroidData;
-    }
-
-    private function getAverageSizeOfAsteroid($data,$asteroidsCount)
-    {
+        $closestAsteroid = null;
+        $closestDistance = PHP_INT_MAX;
 
         // Variable inizialization to calculate the average size of asteroids from the data
         $totalSize = 0;
@@ -169,13 +106,32 @@ class NeoController extends Controller
 
             foreach ($dateAsteroids as $asteroid) {
 
+                //calculate Speed
+                $speedKph = $asteroid['close_approach_data'][0]['relative_velocity']['kilometers_per_hour'];
+
+                if ($speedKph > $maxSpeed) {
+                    $maxSpeed = $speedKph;
+                    $additionalData['fastest_asteroid_id'] = $asteroid['id'];
+                    $additionalData['max_speed'] = $maxSpeed;
+                }
+
+                // Calculate Distance
+                $distance = $asteroid['close_approach_data'][0]['miss_distance']['kilometers'];
+
+                if ($distance < $closestDistance) {
+                    $additionalData['closest_asteroid_id'] = $asteroid['id'];
+                    $additionalData['closest_distance'] = $distance;
+                }
+
                 //calculate Average Size
                 $totalSize += $asteroid['estimated_diameter']['kilometers']['estimated_diameter_max'];
                 $averageSize = $asteroidsCount > 0 ? ($totalSize / $asteroidsCount) : 0;
+
+                $additionalData['average_size'] = $averageSize;
             }
         }
 
-        return $averageSize;
+        return $additionalData;
     }
 
 }

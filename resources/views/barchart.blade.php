@@ -11,19 +11,19 @@
                         <tbody>
                           <tr>
                             <td><span class="badge badge-info">Fastest Asteroid Id:-</span></td>
-                            <td><span class="badge badge-light">{{$getAdditionalAsteroidData['fastest_asteroid_id']}}</span></td>
+                            <td><span class="badge badge-light">{{$getFastestAsteroid['fastest_asteroid_id']}}</span></td>
                             <td><span class="badge badge-info">Fastest Asteroid Speed(Km/h):-</span></td>
-                            <td><span class="badge badge-light"> {{$getAdditionalAsteroidData['max_speed']}}</span></td>
+                            <td><span class="badge badge-light"> {{$getFastestAsteroid['max_speed']}}</span></td>
                           </tr>
                           <tr>
                             <td><span class="badge badge-info">Closest Asteroid Id:-</span></td>
-                            <td><span class="badge badge-light">{{$getAdditionalAsteroidData['closest_asteroid_id']}}</span></td>
+                            <td><span class="badge badge-light">{{$getClosestAsteroid['closest_asteroid_id']}}</span></td>
                             <td><span class="badge badge-info">Closest Asteroid Distance(in KM):-</span></td>
-                            <td><span class="badge badge-light"> {{$getAdditionalAsteroidData['closest_distance']}}</span></td>
+                            <td><span class="badge badge-light"> {{$getClosestAsteroid['closest_distance']}}</span></td>
                           </tr>
                           <tr>
                             <td><span class="badge badge-info">Average Size of Astroid:-</span></td>
-                            <td><span class="badge badge-light">{{$getAdditionalAsteroidData['average_size']}}</span></td>
+                            <td><span class="badge badge-light">{{$getAverageSizeOfAsteroid}}</span></td>
                             <td><span class="badge badge-info">Total No. of Asteroids:-</span></td>
                             <td><span class="badge badge-light"> {{$asteroidsCount}}</span></td>
                           </tr>
