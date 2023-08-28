@@ -18,5 +18,5 @@ Route::get('/', function () {
 });
 
 
-Route::get('/get_date_range',[NeoController::class, 'dateRange']);
-Route::post('/get_api_data',[NeoController::class, 'getApiData'])->name('fetch-neo-stats');
+Route::get('/neo_api',[NeoController::class, 'dateRange']);
+Route::post('/neo_api',[NeoController::class, 'getApiData'])->name('fetch-neo-stats');

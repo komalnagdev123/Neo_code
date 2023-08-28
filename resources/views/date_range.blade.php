@@ -2,16 +2,17 @@
 
 @section('content')
 <div class="container">
-    @if (session('error_message'))
-        <div class="alert alert-danger" role="alert">
-            {{ session('error_message') }}
-        </div>
-    @endif
+
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">Select Date Range to get Neo Data in the form of Bar Chart</div>
                 <div class="card-body">
+                    @if (session('error_message'))
+                        <div class="alert alert-danger" role="alert">
+                            {{ session('error_message') }}
+                        </div>
+                    @endif
                     <form method="POST" action="{{ route('fetch-neo-stats') }}">
                         @csrf
                         <div class="form-group">
@@ -27,7 +28,7 @@
 </div>
 
 <script type="text/javascript">
-    
+
     //Date range picker
     // var start = moment().subtract(7, 'days');
     // var end = moment();
