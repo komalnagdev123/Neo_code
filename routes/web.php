@@ -13,10 +13,5 @@ use App\Http\Controllers\NeoController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
-
-Route::get('/neo_api',[NeoController::class, 'dateRange']);
-Route::post('/neo_api',[NeoController::class, 'getApiData'])->name('fetch-neo-stats');
+Route::get('/',[NeoController::class, 'dateRange']);
+Route::post('/',[NeoController::class, 'getApiData'])->name('fetch-neo-stats');

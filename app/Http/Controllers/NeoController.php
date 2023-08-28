@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Rules\DateInterval;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use Exception;
@@ -8,9 +9,6 @@ use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 class NeoController extends Controller
 {
-    private $startDate;
-    private $endDate;
-
     public function dateRange()
     {
         return view('date_range');
@@ -20,41 +18,24 @@ class NeoController extends Controller
     {
         //exploade date to get startDate and endDate
         $dates = explode(' - ', $request->filter_date);
-        $startDate = date('Y-m-d', strtotime($dates[0]));
-        $endDate = date('Y-m-d', strtotime($dates[1]));
+
+        $request->request->add([
+            'start_date' => Carbon::parse($dates[0]),
+            'end_date' => Carbon::parse($dates[1]),
+        ]);
+
         $apiKey = env('NEO_API_KEY');
 
-        //finding difference between 2 dates
-        $startDateParse = Carbon::parse($startDate);
-        $endDateParse = Carbon::parse($endDate);
-        $diff = $startDateParse->diffInDays($endDateParse);
+        $this->validate($request, [
+            'filter_date' => ['required', new DateInterval()],
+        ]);
 
         try
         {
-             //validating difference between 2 dates. It should not be greater than 7 days as Neo API supports only 7 days diffrence.
-
-             $validator = Validator::make($request->all(), [
-                'number_days' => 'required|numeric|min:0|between:0,7',
-            ]
-            ,
-            [
-             'number_days.between'=> 'Difference of 2 dates should be less than 7 days.', // custom message
-            ]);
-            if ($validator->fails()) {
-                return redirect()->back()
-                    ->withErrors($validator)
-                    ->withInput();
-            }
-            // if($diff > 7)
-            // {
-            //     return redirect()->back()
-            //     ->with('error_message', 'Difference between 2 dates should not be greater than 7 days.');
-            // }
-
             //getting all data from Neo API
             $response = Http::get("https://api.nasa.gov/neo/rest/v1/feed", [
-            'start_date' => $startDate,
-            'end_date' => $endDate,
+            'start_date' => $request->start_date->format('Y-m-d'),
+            'end_date' => $request->end_date->format('Y-m-d'),
             'api_key' => $apiKey,
             ]);
 

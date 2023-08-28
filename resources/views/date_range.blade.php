@@ -28,7 +28,7 @@
                         <div class="form-group">
                             <label for="date" class="col-sm-4 col-form-label">Select Date</label>
                             <input class="form-control" name="filter_date" id="neo_date" value="" onchange="dateValidator();" />
-                            <input type="hidden" name="number_days" id="number_days" value="" />
+{{--                            <input type="hidden" name="number_days" id="number_days" value="" />--}}
                         </div>
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </form>
@@ -57,7 +57,7 @@
         var time_difference = dt2.getTime() - dt1.getTime();
         var result = time_difference / (1000 * 60 * 60 * 24);
 
-        $('#number_days').val(result);
+        // $('#number_days').val(result);
 
     }
     //Date range picker
@@ -81,7 +81,7 @@
             // 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf(
             //     'month')]
         },
-        dateLimit: { days: 7 },
+        dateLimit: { days: 30 },
         locale: {
             format: 'Y/MM/DD'
         }
