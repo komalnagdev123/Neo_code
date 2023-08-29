@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Rules\DateInterval;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use Exception;
@@ -24,22 +25,23 @@ class NeoController extends Controller
             'end_date' => Carbon::parse($dates[1]),
         ]);
 
-        $apiKey = env('NEO_API_KEY');
-
         $this->validate($request, [
             'filter_date' => ['required', new DateInterval()],
         ]);
 
         try
         {
-            //getting all data from Neo API
-            $response = Http::get("https://api.nasa.gov/neo/rest/v1/feed", [
-            'start_date' => $request->start_date->format('Y-m-d'),
-            'end_date' => $request->end_date->format('Y-m-d'),
-            'api_key' => $apiKey,
-            ]);
+            $neoApiData = $this->getNeoData($request->start_date, $request->end_date);
 
-            $neoApiData = $response->json();
+            if (isset($neoApiData['near_earth_objects'])) {
+                $asteroids = collect($neoApiData['near_earth_objects']);
+
+                $chartData = $this->getChartData($asteroids);
+
+                dd($chartData);
+            }
+
+
 
             //if key exists in array means we got data successfully from API
             if (array_key_exists("element_count",$neoApiData) && array_key_exists("near_earth_objects",$neoApiData))
@@ -73,6 +75,19 @@ class NeoController extends Controller
             ->with('error_message', $e);
         }
     }
+
+    private function getChartData(Collection $asteroids)
+    {
+        return $asteroids->mapWithKeys(fn ($dayAsteroids, $date) => [$date => count($dayAsteroids)])
+            ->sortKeys()
+            ->toArray();
+    }
+
+
+
+
+
+
 
     private function getNeoStatstics($neoApiData)
     {
@@ -157,6 +172,24 @@ class NeoController extends Controller
         }
 
         return $averageSize;
+    }
+
+    /**
+     * @param Request $request
+     * @param mixed $apiKey
+     * @return array|mixed
+     */
+    private function getNeoData(Carbon $startDate, Carbon $endDate): mixed
+    {
+        $apiKey = config('services.neo.key');
+
+        $key = 'neo-' . $startDate->format('Y-m-d') . $endDate->format('Y-m-d');
+
+        return cache()->remember($key, now()->addDay(), fn () => Http::get("https://api.nasa.gov/neo/rest/v1/feed", [
+            'start_date' => $startDate->format('Y-m-d'),
+            'end_date' => $endDate->format('Y-m-d'),
+            'api_key' => $apiKey,
+        ])->json());
     }
 
 }
