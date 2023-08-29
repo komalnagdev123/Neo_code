@@ -26,9 +26,9 @@ class NeoController extends Controller
 
         $apiKey = env('NEO_API_KEY');
 
-        // $this->validate($request, [
-        //     'filter_date' => ['required', new DateInterval()],
-        // ]);
+        $this->validate($request, [
+            'filter_date' => ['required', new DateInterval()],
+        ]);
 
         try
         {
