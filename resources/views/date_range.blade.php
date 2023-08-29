@@ -27,8 +27,7 @@
                         @csrf
                         <div class="form-group">
                             <label for="date" class="col-sm-4 col-form-label">Select Date</label>
-                            <input class="form-control" name="filter_date" id="neo_date" value="" onchange="dateValidator();" />
-{{--                            <input type="hidden" name="number_days" id="number_days" value="" />--}}
+                            <input class="form-control" name="filter_date" id="neo_date" value="" />
                         </div>
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </form>
@@ -40,26 +39,6 @@
 
 <script type="text/javascript">
 
-    //Date Validator function
-
-    function dateValidator()
-    {
-        var dateRange = $("#neo_date").val();
-
-        var dateRangeArray = dateRange.split("-");
-
-        var fromdate = dateRangeArray[0];
-        var todate = dateRangeArray[1];
-
-        var dt1 = new Date(fromdate);
-        var dt2 = new Date(todate);
-
-        var time_difference = dt2.getTime() - dt1.getTime();
-        var result = time_difference / (1000 * 60 * 60 * 24);
-
-        // $('#number_days').val(result);
-
-    }
     //Date range picker
     // var start = moment().subtract(7, 'days');
     // var end = moment();

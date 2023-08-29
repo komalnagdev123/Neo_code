@@ -34,11 +34,16 @@ class NeoController extends Controller
             $neoApiData = $this->getNeoData($request->start_date, $request->end_date);
 
             if (isset($neoApiData['near_earth_objects'])) {
+                $asteroidsCount = $neoApiData['element_count'];
                 $asteroids = collect($neoApiData['near_earth_objects']);
 
                 $chartData = $this->getChartData($asteroids);
 
-                dd($chartData);
+                //dd($chartData);
+
+                $getFastestAsteroidData = $this->getFastestAsteroidData($asteroids);
+
+                $getAverageSizeOfAsteroidData = $this->getAverageSizeOfAsteroidData($asteroids,$asteroidsCount);
             }
 
 
@@ -84,8 +89,28 @@ class NeoController extends Controller
     }
 
 
+    private function getFastestAsteroidData(Collection $asteroids)
+    {
+        $asteroid = $asteroids->toArray();
+        foreach ($asteroid as $asteroidVal) {
+            foreach($asteroidVal as $item)
+                $speedKph[] = $item['close_approach_data'][0]['relative_velocity']['kilometers_per_hour'];
+        }
+       // dd(collect($speedKph)->max());
+    }
 
-
+    private function getAverageSizeOfAsteroidData(Collection $asteroids,$asteroidsCount)
+    {
+        $asteroid = $asteroids->toArray();
+        foreach ($asteroid as $asteroidVal) {
+            foreach($asteroidVal as $item)
+                $totalSizeArr[] = $item['estimated_diameter']['kilometers']['estimated_diameter_max'];
+        }
+        $totalSize = collect($totalSizeArr)->sum();
+        $averageSize = $asteroidsCount > 0 ? ($totalSize / $asteroidsCount) : 0;
+       // dd($averageSize);
+        return $averageSize;
+    }
 
 
 
