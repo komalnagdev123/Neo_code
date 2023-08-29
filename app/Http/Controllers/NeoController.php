@@ -16,7 +16,7 @@ class NeoController extends Controller
 
     public function getApiData(Request $request)
     {
-        //exploade date to get startDate and endDate
+        //Explode date to get startDate and endDate
         $dates = explode(' - ', $request->filter_date);
 
         $request->request->add([
@@ -26,9 +26,9 @@ class NeoController extends Controller
 
         $apiKey = env('NEO_API_KEY');
 
-        $this->validate($request, [
-            'filter_date' => ['required', new DateInterval()],
-        ]);
+        // $this->validate($request, [
+        //     'filter_date' => ['required', new DateInterval()],
+        // ]);
 
         try
         {
@@ -64,13 +64,13 @@ class NeoController extends Controller
             else
             {
                 return redirect()->back()
-                ->with('error_message', 'Oops!Internal Server Error.Please Try Again Later.');
+                ->with('error_message', $neoApiData['error_message']);
             }
         }
         catch (Exception $e)
         {
             return redirect()->back()
-            ->with('error_message', 'Oops!Internal Server Error.Please Try Again Later.');
+            ->with('error_message', $e);
         }
     }
 
