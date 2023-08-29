@@ -86,10 +86,8 @@ class NeoController extends Controller
     private function getAverageSizeOfAsteroidData(Collection $asteroids,$asteroidsCount)
     {
 
-        $totalSize = $asteroids->flatMap(fn ($values) => $values)
-                    ->sum('estimated_diameter.kilometers.estimated_diameter_max');
-
-        return $averageSize = $asteroidsCount > 0 ? ($totalSize / $asteroidsCount) : 0;
+        return $asteroids->flatMap(fn ($values) => $values)
+                    ->average('estimated_diameter.kilometers.estimated_diameter_max');
     }
 
     private function getNeoData(Carbon $startDate, Carbon $endDate): mixed
