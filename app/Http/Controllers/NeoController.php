@@ -91,12 +91,9 @@ class NeoController extends Controller
 
     private function getFastestAsteroidData(Collection $asteroids)
     {
-        $asteroid = $asteroids->toArray();
-        foreach ($asteroid as $asteroidVal) {
-            foreach($asteroidVal as $item)
-                $speedKph[] = $item['close_approach_data'][0]['relative_velocity']['kilometers_per_hour'];
-        }
-       // dd(collect($speedKph)->max());
+        return $asteroids->flatMap(fn ($values) => $values)
+            ->sortByDesc('close_approach_data.0.relative_velocity.kilometers_per_hour')
+            ->first();
     }
 
     private function getAverageSizeOfAsteroidData(Collection $asteroids,$asteroidsCount)
