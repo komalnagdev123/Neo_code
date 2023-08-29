@@ -9,21 +9,21 @@
                 <div class="card-body">
                     <table class="table table-borderless">
                         <tbody>
-                          <tr>
+                           <tr>
                             <td><span class="badge badge-info">Fastest Asteroid Id:-</span></td>
-                            <td><span class="badge badge-light">{{$getFastestAsteroid['fastest_asteroid_id']}}</span></td>
+                            <td><span class="badge badge-light">{{$getFastestAsteroidData['id']}}</span></td>
                             <td><span class="badge badge-info">Fastest Asteroid Speed(Km/h):-</span></td>
-                            <td><span class="badge badge-light"> {{$getFastestAsteroid['max_speed']}}</span></td>
+                            <td><span class="badge badge-light"> {{$getFastestAsteroidData['close_approach_data'][0]['relative_velocity']['kilometers_per_hour']}}</span></td>
                           </tr>
                           <tr>
                             <td><span class="badge badge-info">Closest Asteroid Id:-</span></td>
-                            <td><span class="badge badge-light">{{$getClosestAsteroid['closest_asteroid_id']}}</span></td>
+                            <td><span class="badge badge-light">{{$getClosestAsteroidData['id']}}</span></td>
                             <td><span class="badge badge-info">Closest Asteroid Distance(in KM):-</span></td>
-                            <td><span class="badge badge-light"> {{$getClosestAsteroid['closest_distance']}}</span></td>
+                            <td><span class="badge badge-light"> {{$getClosestAsteroidData['close_approach_data'][0]['miss_distance']['kilometers']}}</span></td>
                           </tr>
                           <tr>
                             <td><span class="badge badge-info">Average Size of Astroid:-</span></td>
-                            <td><span class="badge badge-light">{{$getAverageSizeOfAsteroid}}</span></td>
+                            <td><span class="badge badge-light">{{$getAverageSizeOfAsteroidData}}</span></td>
                             <td><span class="badge badge-info">Total No. of Asteroids:-</span></td>
                             <td><span class="badge badge-light"> {{$asteroidsCount}}</span></td>
                           </tr>
@@ -40,14 +40,13 @@
     </div>
 </div>
 
-
 <!-- Show Graph Data Liabraries-->
 <script src="https://cdnjs.com/libraries/Chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.min.js"></script>
 
 <script type="text/javascript">
-    var noOfAstroids = <?php  echo json_encode($neoAstroidData); ?>;
-    var astroidsAppearDate = <?php  echo json_encode($neoDatesdata); ?>;
+    var noOfAstroids = <?php  echo json_encode(array_values($chartData)); ?>;
+    var astroidsAppearDate = <?php  echo json_encode(array_keys($chartData)); ?>;
 
     var ctx = document.getElementById('myChart').getContext('2d');
     var myChart = new Chart(ctx, {

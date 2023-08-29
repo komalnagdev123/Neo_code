@@ -34,45 +34,53 @@ class NeoController extends Controller
             $neoApiData = $this->getNeoData($request->start_date, $request->end_date);
 
             if (isset($neoApiData['near_earth_objects'])) {
+
                 $asteroidsCount = $neoApiData['element_count'];
+
                 $asteroids = collect($neoApiData['near_earth_objects']);
 
                 $chartData = $this->getChartData($asteroids);
 
-                //dd($chartData);
-
                 $getFastestAsteroidData = $this->getFastestAsteroidData($asteroids);
 
+                $getClosestAsteroidData = $this->getClosestAsteroidData($asteroids);
+
                 $getAverageSizeOfAsteroidData = $this->getAverageSizeOfAsteroidData($asteroids,$asteroidsCount);
-            }
 
+                return view('barchart', compact('asteroidsCount','chartData','getFastestAsteroidData','getClosestAsteroidData','getAverageSizeOfAsteroidData'));
 
-
-            //if key exists in array means we got data successfully from API
-            if (array_key_exists("element_count",$neoApiData) && array_key_exists("near_earth_objects",$neoApiData))
-            {
-                $asteroidsCount = $neoApiData['element_count'];
-                $getNeoStatstics = $this->getNeoStatstics($neoApiData);
-
-                $neoDatesdata = array_keys($getNeoStatstics);
-                $neoAstroidData = array_values($getNeoStatstics);
-
-                //for getting FastestAsteroidData
-                $getFastestAsteroid = $this->getFastestAsteroid($neoApiData);
-
-                //for getting ClosestAsteroidData
-                $getClosestAsteroid = $this->getClosestAsteroid($neoApiData);
-
-                //for getting Average Size
-                $getAverageSizeOfAsteroid = $this->getAverageSizeOfAsteroid($neoApiData,$asteroidsCount);
-
-                return view('barchart', compact('asteroidsCount','getFastestAsteroid','getClosestAsteroid','getAverageSizeOfAsteroid','neoDatesdata', 'neoAstroidData'));
             }
             else
             {
                 return redirect()->back()
                 ->with('error_message', $neoApiData['error_message']);
             }
+
+            //if key exists in array means we got data successfully from API
+            // if (array_key_exists("element_count",$neoApiData) && array_key_exists("near_earth_objects",$neoApiData))
+            // {
+            //     $asteroidsCount = $neoApiData['element_count'];
+            //     $getNeoStatstics = $this->getNeoStatstics($neoApiData);
+
+            //     $neoDatesdata = array_keys($getNeoStatstics);
+            //     $neoAstroidData = array_values($getNeoStatstics);
+
+            //     //for getting FastestAsteroidData
+            //     $getFastestAsteroid = $this->getFastestAsteroid($neoApiData);
+
+            //     //for getting ClosestAsteroidData
+            //     $getClosestAsteroid = $this->getClosestAsteroid($neoApiData);
+
+            //     //for getting Average Size
+            //     $getAverageSizeOfAsteroid = $this->getAverageSizeOfAsteroid($neoApiData,$asteroidsCount);
+
+            //     return view('barchart', compact('asteroidsCount','getFastestAsteroid','getClosestAsteroid','getAverageSizeOfAsteroid','neoDatesdata', 'neoAstroidData'));
+            // }
+            // else
+            // {
+            //     return redirect()->back()
+            //     ->with('error_message', $neoApiData['error_message']);
+            // }
         }
         catch (Exception $e)
         {
@@ -88,7 +96,6 @@ class NeoController extends Controller
             ->toArray();
     }
 
-
     private function getFastestAsteroidData(Collection $asteroids)
     {
         return $asteroids->flatMap(fn ($values) => $values)
@@ -96,20 +103,34 @@ class NeoController extends Controller
             ->first();
     }
 
-    private function getAverageSizeOfAsteroidData(Collection $asteroids,$asteroidsCount)
+    private function getClosestAsteroidData(Collection $asteroids)
     {
-        $asteroid = $asteroids->toArray();
-        foreach ($asteroid as $asteroidVal) {
-            foreach($asteroidVal as $item)
-                $totalSizeArr[] = $item['estimated_diameter']['kilometers']['estimated_diameter_max'];
-        }
-        $totalSize = collect($totalSizeArr)->sum();
-        $averageSize = $asteroidsCount > 0 ? ($totalSize / $asteroidsCount) : 0;
-       // dd($averageSize);
-        return $averageSize;
+        return $asteroids->flatMap(fn ($values) => $values)
+            ->sortBy('close_approach_data.0.miss_distance.kilometers')
+            ->first();
     }
 
+    private function getAverageSizeOfAsteroidData(Collection $asteroids,$asteroidsCount)
+    {
 
+        $totalSize = $asteroids->flatMap(fn ($values) => $values)
+            ->sum('estimated_diameter.kilometers.estimated_diameter_max');
+
+        return $averageSize = $asteroidsCount > 0 ? ($totalSize / $asteroidsCount) : 0;
+    }
+
+    private function getNeoData(Carbon $startDate, Carbon $endDate): mixed
+    {
+        $apiKey = config('services.neo.key');
+
+        $key = 'neo-' . $startDate->format('Y-m-d') . $endDate->format('Y-m-d');
+
+        return cache()->remember($key, now()->addDay(), fn () => Http::get("https://api.nasa.gov/neo/rest/v1/feed", [
+            'start_date' => $startDate->format('Y-m-d'),
+            'end_date' => $endDate->format('Y-m-d'),
+            'api_key' => $apiKey,
+        ])->json());
+    }
 
     private function getNeoStatstics($neoApiData)
     {
@@ -195,23 +216,4 @@ class NeoController extends Controller
 
         return $averageSize;
     }
-
-    /**
-     * @param Request $request
-     * @param mixed $apiKey
-     * @return array|mixed
-     */
-    private function getNeoData(Carbon $startDate, Carbon $endDate): mixed
-    {
-        $apiKey = config('services.neo.key');
-
-        $key = 'neo-' . $startDate->format('Y-m-d') . $endDate->format('Y-m-d');
-
-        return cache()->remember($key, now()->addDay(), fn () => Http::get("https://api.nasa.gov/neo/rest/v1/feed", [
-            'start_date' => $startDate->format('Y-m-d'),
-            'end_date' => $endDate->format('Y-m-d'),
-            'api_key' => $apiKey,
-        ])->json());
-    }
-
 }
