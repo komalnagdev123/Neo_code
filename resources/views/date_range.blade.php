@@ -14,20 +14,14 @@
                         </div>
                     @endif
 
-                    @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <ul>
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
                     <form method="POST" action="{{ route('fetch-neo-stats') }}">
                         @csrf
                         <div class="form-group">
                             <label for="date" class="col-sm-4 col-form-label">Select Date</label>
-                            <input class="form-control" name="filter_date" id="neo_date" value="" />
+                            <input class="form-control" name="filter_date" id="neo_date" value="" class="@error('filter_date') is-invalid @enderror" />
+                            @if ($errors->has('filter_date'))
+                                <span class="text-danger">{{ $errors->first('filter_date') }}</span>
+                            @endif
                         </div>
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </form>

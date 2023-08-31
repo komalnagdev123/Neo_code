@@ -1,12 +1,12 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Rules\DateInterval;
+//use App\Rules\DateInterval;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Http\Request;
+//use Illuminate\Http\Request;
+use App\Http\Requests\NeoFormRequest;
 use Exception;
-use Carbon\Carbon;
 class NeoController extends Controller
 {
     public function dateRange()
@@ -14,23 +14,17 @@ class NeoController extends Controller
         return view('date_range');
     }
 
-    public function getApiData(Request $request)
+    public function getApiData(NeoFormRequest $request)
     {
         //Explode date to get startDate and endDate
         $dates = explode(' - ', $request->filter_date);
 
-        $request->request->add([
-            'start_date' => Carbon::parse($dates[0]),
-            'end_date' => Carbon::parse($dates[1]),
-        ]);
-
-        $this->validate($request, [
-            'filter_date' => ['required', new DateInterval()],
-        ]);
+        $startDate = date("Y-m-d", strtotime($dates[0]));
+        $endDate = date("Y-m-d", strtotime($dates[1]));
 
         try
         {
-            $neoApiData = $this->getNeoData($request->start_date, $request->end_date);
+            $neoApiData = $this->getNeoData($startDate, $endDate);
 
             if (isset($neoApiData['near_earth_objects'])) {
 
@@ -90,15 +84,15 @@ class NeoController extends Controller
                     ->average('estimated_diameter.kilometers.estimated_diameter_max');
     }
 
-    private function getNeoData(Carbon $startDate, Carbon $endDate): mixed
+    private function getNeoData($startDate, $endDate): mixed
     {
         $apiKey = config('services.neo.key');
 
-        $key = 'neo-' . $startDate->format('Y-m-d') . $endDate->format('Y-m-d');
+        $key = 'neo-' . $startDate . $endDate;
 
         return cache()->remember($key, now()->addDay(), fn () => Http::get("https://api.nasa.gov/neo/rest/v1/feed", [
-            'start_date' => $startDate->format('Y-m-d'),
-            'end_date' => $endDate->format('Y-m-d'),
+            'start_date' => $startDate,
+            'end_date' => $endDate,
             'api_key' => $apiKey,
         ])->json());
     }
