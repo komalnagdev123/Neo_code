@@ -46,4 +46,23 @@ class NeoFormRequest extends FormRequest
             'end_date' => date("Y-m-d", strtotime($dates[1])),
         ]);
     }
+
+    // we can use this if we have not created any rule as such
+    // public function withValidator($validator)
+    // {
+    //     $startDate = $validator->getData()['start_date'];
+    //     $endtDate = $validator->getData()['end_date'];
+
+    //     $validator->after(
+    //     function ($validator) use ($startDate,$endtDate)
+    //     {
+    //         if (Carbon::parse($endtDate)->diffInDays(Carbon::parse($startDate)) > $this->numDays) {
+    //             $validator->errors()->add(
+    //             'filter_date',
+    //             'The date range must be less than or equal to ' . $this->numDays. ' days'
+    //             );
+    //         }
+    //     }
+    //     );
+    // }
 }
