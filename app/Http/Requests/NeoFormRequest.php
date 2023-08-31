@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\DateInterval;
 use Illuminate\Foundation\Http\FormRequest;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -29,9 +30,8 @@ class NeoFormRequest extends FormRequest
      */
     public function rules(): array
     {
-
         return [
-            'filter_date' => ['required'],
+            'filter_date' => ['required', new DateInterval($this->start_date, $this->end_date)],
         ];
 
     }
@@ -45,22 +45,5 @@ class NeoFormRequest extends FormRequest
             'start_date' => date("Y-m-d", strtotime($dates[0])),
             'end_date' => date("Y-m-d", strtotime($dates[1])),
         ]);
-    }
-    public function withValidator($validator)
-    {
-        $startDate = $validator->getData()['start_date'];
-        $endtDate = $validator->getData()['end_date'];
-
-        $validator->after(
-        function ($validator) use ($startDate,$endtDate)
-        {
-            if (Carbon::parse($endtDate)->diffInDays(Carbon::parse($startDate)) > $this->numDays) {
-                $validator->errors()->add(
-                'filter_date',
-                'The date range must be less than or equal to ' . $this->numDays. ' days'
-                );
-            }
-        }
-        );
     }
 }
