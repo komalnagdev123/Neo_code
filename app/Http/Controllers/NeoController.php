@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 //use App\Rules\DateInterval;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
-//use Illuminate\Http\Request;
 use App\Http\Requests\NeoFormRequest;
 use Exception;
 class NeoController extends Controller
@@ -16,13 +15,6 @@ class NeoController extends Controller
 
     public function getApiData(NeoFormRequest $request)
     {
-        //Explode date to get startDate and endDate
-        $dates = explode(' - ', $request->filter_date);
-
-        $request->request->add([
-                'start_date' => date("Y-m-d", strtotime($dates[0])),
-                'end_date' => date("Y-m-d", strtotime($dates[1])),
-            ]);
         try
         {
             $neoApiData = $this->getNeoData($request->startDate, $request->endDate);

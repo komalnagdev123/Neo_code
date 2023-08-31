@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class NeoFormRequest extends FormRequest
 {
@@ -11,8 +12,16 @@ class NeoFormRequest extends FormRequest
      * Determine if the user is authorized to make this request.
      */
 
-     public function __construct(public int $numDays = 7)
+     public function __construct(Request $request ,public int $numDays = 7)
     {
+        //Explode date to get startDate and endDate
+        $dates = explode(' - ', $request->filter_date);
+
+        $request->request->add([
+                'start_date' => date("Y-m-d", strtotime($dates[0])),
+                'end_date' => date("Y-m-d", strtotime($dates[1])),
+            ]);
+
     }
 
     public function authorize(): bool
@@ -36,21 +45,19 @@ class NeoFormRequest extends FormRequest
 
     public function withValidator($validator)
     {
-        $filter_date = $validator->getData()['filter_date'] ?? '';
+        $startDate = $validator->getData()['start_date'];
+        $endtDate = $validator->getData()['end_date'];
 
-            $validator->after(
-            function ($validator) use ($filter_date)
-            {
-                //Explode date to get startDate and endDate
-                $dates = explode(' - ', $filter_date);
-
-                if (Carbon::parse($dates[1])->diffInDays(Carbon::parse($dates[0])) > $this->numDays) {
-                    $validator->errors()->add(
-                    'filter_date',
-                    'The date range must be less than or equal to ' . $this->numDays. ' days'
-                    );
-                }
+        $validator->after(
+        function ($validator) use ($startDate,$endtDate)
+        {
+            if (Carbon::parse($endtDate)->diffInDays(Carbon::parse($startDate)) > $this->numDays) {
+                $validator->errors()->add(
+                'filter_date',
+                'The date range must be less than or equal to ' . $this->numDays. ' days'
+                );
             }
+        }
         );
     }
 }
