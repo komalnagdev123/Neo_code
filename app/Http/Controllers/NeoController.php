@@ -19,12 +19,13 @@ class NeoController extends Controller
         //Explode date to get startDate and endDate
         $dates = explode(' - ', $request->filter_date);
 
-        $startDate = date("Y-m-d", strtotime($dates[0]));
-        $endDate = date("Y-m-d", strtotime($dates[1]));
-
+        $request->request->add([
+                'start_date' => date("Y-m-d", strtotime($dates[0])),
+                'end_date' => date("Y-m-d", strtotime($dates[1])),
+            ]);
         try
         {
-            $neoApiData = $this->getNeoData($startDate, $endDate);
+            $neoApiData = $this->getNeoData($request->startDate, $request->endDate);
 
             if (isset($neoApiData['near_earth_objects'])) {
 
