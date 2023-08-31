@@ -134,4 +134,13 @@ class NeoController extends Controller
         return $additionalData;
     }
 
+    // $request->request->add([
+        //     'start_date' => Carbon::parse($dates[0]),
+        //     'end_date' => Carbon::parse($dates[1]),
+        // ]);
+
+        // $this->validate($request, [
+        //     'filter_date' => ['required', new DateInterval()],
+        // ]);
+
 }

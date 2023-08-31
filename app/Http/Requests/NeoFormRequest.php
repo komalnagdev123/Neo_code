@@ -47,7 +47,7 @@ class NeoFormRequest extends FormRequest
                 if (Carbon::parse($dates[1])->diffInDays(Carbon::parse($dates[0])) > $this->numDays) {
                     $validator->errors()->add(
                     'filter_date',
-                    'The date range must be less than or equal to ' . $this->numDays
+                    'The date range must be less than or equal to ' . $this->numDays. ' days'
                     );
                 }
             }
