@@ -6,6 +6,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use App\Http\Requests\NeoFormRequest;
 use Exception;
+use Illuminate\Http\Request;
 class NeoController extends Controller
 {
     public function dateRange()
@@ -17,7 +18,7 @@ class NeoController extends Controller
     {
         try
         {
-            $neoApiData = $this->getNeoData($request->startDate, $request->endDate);
+            $neoApiData = $this->getNeoData($request->start_date, $request->end_date);
 
             if (isset($neoApiData['near_earth_objects'])) {
 
